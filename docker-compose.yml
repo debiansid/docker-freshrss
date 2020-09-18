@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+   freshrss-db:
+    image: postgres:12-alpine
+    container_name: freshrss-db
+    hostname: freshrss-db
+    restart: unless-stopped
+    volumes:
+      - /opt/appdata/postgres/db:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      - POSTGRES_USER=freshrss
+      - POSTGRES_PASSWORD=freshrss
+      - POSTGRES_DB=freshrss
+
+   freshrss:
+    image: linuxserver/freshrss
+    container_name: freshrss
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+    depends_on:
+      - freshrss-db
+    volumes:
+      - /opt/appdata/freshrss:/config
+    ports:
+      - "127.0.0.1:8080:80"
+    restart: unless-stopped
+
+   mercury:
+     image: wangqiru/mercury-parser-api:latest
+     container_name: mercury
+     ports:
+      - "127.0.0.1:3000:3000"
+     restart: unless-stopped
